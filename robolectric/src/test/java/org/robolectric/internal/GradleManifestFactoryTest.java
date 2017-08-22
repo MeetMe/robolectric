@@ -35,7 +35,7 @@ public class GradleManifestFactoryTest {
     FileFsFile.from("custom_build", "intermediates", "res").getFile().mkdirs();
     FileFsFile.from("custom_build", "intermediates", "assets").getFile().mkdirs();
     FileFsFile.from("custom_build", "intermediates", "manifests").getFile().mkdirs();
-    
+
     configBuilder = Config.Builder.defaults();
     factory = new GradleManifestFactory();
   }
@@ -192,6 +192,21 @@ public class GradleManifestFactoryTest {
   }
 
   @Test
+  public void getAppManifest_withMergedNotCompiledResources_shouldHaveMergedNotCompiledResPath() throws Exception {
+    FileFsFile.from("build", "intermediates", "merged-not-compiled-resources").getFile().mkdirs();
+
+    final AndroidManifest manifest = createManifest(
+        configBuilder.setConstants(BuildConfig.class)
+            .setPackageName("fake.package.name")
+            .setManifest("GradleManifest.xml").build());
+
+    assertThat(manifest.getPackageName()).isEqualTo("fake.package.name");
+    assertThat(manifest.getResDirectory()).isEqualTo(file("build/intermediates/merged-not-compiled-resources/flavor1/type1"));
+    assertThat(manifest.getAssetsDirectory()).isEqualTo(file("build/intermediates/assets/flavor1/type1"));
+    assertThat(manifest.getAndroidManifestFile()).isEqualTo(file("build/intermediates/manifests/full/flavor1/type1/GradleManifest.xml"));
+  }
+
+  @Test
   public void rClassShouldBeInTheSamePackageAsBuildConfig() throws Exception {
     File manifestFile = new File(
         joinPath("build", "intermediates", "manifests", "full",
@@ -210,7 +225,7 @@ public class GradleManifestFactoryTest {
     ManifestIdentifier manifestIdentifier = factory.identify(
         configBuilder.setConstants(BuildConfig.class)
             .setManifest("GradleManifest.xml").build());
-    
+
     assertThat(manifestIdentifier.getManifestFile().toString())
         .isEqualTo("build/intermediates/manifests/full/flavor1/type1/GradleManifest.xml");
     assertThat(manifestIdentifier.getResDir().toString())

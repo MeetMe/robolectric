@@ -34,6 +34,9 @@ public class GradleManifestFactory implements ManifestFactory {
       // Android gradle plugin 1.5.0+ puts the merged layouts in data-binding-layout-out.
       // https://github.com/robolectric/robolectric/issues/2143
       res = FileFsFile.from(buildOutputDir, "data-binding-layout-out", flavor, type);
+    } else if (FileFsFile.from(buildOutputDir, "merged-not-compiled-resources").exists()) {
+      // merged-no-compiled-resources added in Android Gradle plugin 3.0 with aapt2
+      res = FileFsFile.from(buildOutputDir, "merged-not-compiled-resources", flavor, type);
     } else if (FileFsFile.from(buildOutputDir, "res", "merged").exists()) {
       // res/merged added in Android Gradle plugin 1.3-beta1
       res = FileFsFile.from(buildOutputDir, "res", "merged", flavor, type);
